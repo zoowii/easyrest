@@ -1,0 +1,11 @@
+/.vscode
+/.idea
+/*.iml
+/go.mod
+/go.sum
+/easyrest.exe
+/easyrest
+*~
+/bin
+/pkg
+/obj
