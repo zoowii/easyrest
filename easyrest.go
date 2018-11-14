@@ -27,6 +27,17 @@ func (i *arrayFlags) Set(value string) error {
 	return nil
 }
 
+func isNullJSON(val *simplejson.Json) bool {
+	if val == nil {
+		return true
+	}
+	s, err := val.Encode()
+	if err != nil {
+		return true
+	}
+	return string(s) == "null"
+}
+
 func sendHTTPJSONRpc(url string, method string, params *simplejson.Json, headers []string, basic *string, cookie *string) (*simplejson.Json, error) {
 	if url[0:7] != "http://" {
 		url = "http://" + url
@@ -45,7 +56,7 @@ func sendHTTPJSONRpc(url string, method string, params *simplejson.Json, headers
 	}
 	if basic != nil {
 		auth := base64.StdEncoding.EncodeToString([]byte(*basic))
-		req.Header.Add("Authorization", `Basic: `+auth)
+		req.Header.Add("Authorization", `Basic `+auth)
 	}
 	if cookie != nil {
 		req.Header.Add("Cookie", *cookie)
@@ -78,7 +89,7 @@ func sendHTTPJSONRpc(url string, method string, params *simplejson.Json, headers
 		return nil, err
 	}
 	errorJSON, ok := res.CheckGet("error")
-	if ok && errorJSON != nil {
+	if ok && !isNullJSON(errorJSON) {
 		errStr, err := errorJSON.Encode()
 		if err != nil {
 			return nil, err
@@ -128,5 +139,5 @@ func main() {
 		os.Exit(1)
 		return
 	}
-	println(resultStr)
+	println(string(resultStr))
 }
